@@ -11,4 +11,22 @@
     <string name="pref_location_label" translatable="false">Location</string>
     <string name="pref_location_default" translatable="false">94043</string>
 
+    <string name="pref_temperature_key" translatable="false">temperature</string>
+    <string name="pref_temperature_label" translatable="false">Temperature Units</string>
+
+    <string name="pref_temperature_imperial" translatable="false">I</string>
+    <string name="pref_temperature_metric" translatable="false">M</string>
+
+    <string name="pref_temperature_default" translatable="false">@string/pref_temperature_metric</string>
+
+    <string-array name="temperature_options">
+        <item>Metric</item>
+        <item>Imperial</item>
+    </string-array>
+
+    <string-array name="temperature_values">
+        <item>@string/pref_temperature_metric</item>
+        <item>@string/pref_temperature_imperial</item>
+    </string-array>
+
 </resources>

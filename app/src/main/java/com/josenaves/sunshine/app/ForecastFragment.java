@@ -41,6 +41,8 @@ import java.util.List;
 
 public class ForecastFragment extends Fragment {
 
+    private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
+
     private ArrayAdapter<String> forecastAdapter;
 
     public ForecastFragment() {
@@ -117,7 +119,6 @@ public class ForecastFragment extends Fragment {
                 .getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
     }
 
-
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
@@ -144,7 +145,7 @@ public class ForecastFragment extends Fragment {
             BufferedReader reader = null;
 
             // Will contain the raw JSON response as a string.
-            String forecastJsonStr = null;
+            String forecastJsonStr;
 
             String format = "json";
             String unit = "metric";
@@ -256,12 +257,27 @@ public class ForecastFragment extends Fragment {
          * Prepare the weather high/lows for presentation.
          */
         private String formatHighLows(double high, double low) {
-            // For presentation, assume the user doesn't care about tenths of a degree.
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unitType = sharedPrefs.getString(
+                    getString(R.string.pref_temperature_key),
+                    getString(R.string.pref_temperature_default));
+
+            if (unitType.equals(getString(R.string.pref_temperature_imperial))) {
+                high = fahrenheit2Celsius(high);
+                low = fahrenheit2Celsius(low);
+            }
+            else if (!unitType.equals(getString(R.string.pref_temperature_metric))) {
+                Log.d(LOG_TAG, "Unit type not found: " + unitType);
+            }
+
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
 
-            String highLowStr = roundedHigh + "/" + roundedLow;
-            return highLowStr;
+            return roundedHigh + "/" + roundedLow;
+        }
+
+        private double fahrenheit2Celsius(double fahrenheit) {
+            return (fahrenheit * 1.8) + 32;
         }
 
         /**
