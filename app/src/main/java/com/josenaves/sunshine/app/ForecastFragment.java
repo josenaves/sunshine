@@ -1,9 +1,13 @@
 package com.josenaves.sunshine.app;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -13,8 +17,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +55,12 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.forecastfragment, menu);
@@ -57,8 +70,7 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            FetchWeatherTask task = new FetchWeatherTask();
-            task.execute("94043");
+            updateWeather();
             return true;
         }
 
@@ -79,11 +91,32 @@ public class ForecastFragment extends Fragment {
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(forecastAdapter);
 
-        FetchWeatherTask task = new FetchWeatherTask();
-        task.execute("94043");
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                String forecast = forecastAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                intent.putExtra(Intent.EXTRA_TEXT, forecast);
+
+                //Toast.makeText(getActivity(), "Open forecast detail for " + forecast, Toast.LENGTH_SHORT).show();
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
+
+    private void updateWeather() {
+        FetchWeatherTask task = new FetchWeatherTask();
+        task.execute(getLocationFromSharedPreferences());
+    }
+
+    private String getLocationFromSharedPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+    }
+
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
@@ -94,8 +127,13 @@ public class ForecastFragment extends Fragment {
             super.onPostExecute(forecastArray);
 
             forecastAdapter.clear();
-            for (String forecast : forecastArray)
-                forecastAdapter.add(forecast);
+
+            if (null == forecastArray) {
+                Toast.makeText(getActivity(), "Sorry, there's no data for this location !", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                for (String forecast : forecastArray) forecastAdapter.add(forecast);
+            }
         }
 
         @Override
