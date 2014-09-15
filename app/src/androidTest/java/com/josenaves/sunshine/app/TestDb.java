@@ -91,11 +91,96 @@ public class TestDb extends AndroidTestCase {
             // Then take a break. We both know that wasn't easy.
             assertEquals(testCityName, name);
             assertEquals(testLocationSetting, location);
-
             assertEquals(testLongitude, longitude);
-
             assertEquals(testLatitude, latitude);
 
+            // Fantastic. Now that we have a location, add some weather !
+            ContentValues weatherValues = new ContentValues();
+            weatherValues.put(WeatherEntry.COLUMN_LOC_KEY, locationRowId);
+            weatherValues.put(WeatherEntry.COLUMN_DATETEXT, "20141205");
+            weatherValues.put(WeatherEntry.COLUMN_DEGREES, 1.1);
+            weatherValues.put(WeatherEntry.COLUMN_HUMIDITY, 1.2);
+            weatherValues.put(WeatherEntry.COLUMN_PRESSURE, 1.3);
+            weatherValues.put(WeatherEntry.COLUMN_MAX_TEMP, 75);
+            weatherValues.put(WeatherEntry.COLUMN_MIN_TEMP, 65);
+            weatherValues.put(WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
+            weatherValues.put(WeatherEntry.COLUMN_WIND_SPEED, 5.5);
+            weatherValues.put(WeatherEntry.COLUMN_WEATHER_ID, 321);
+
+            long weatherRowId = db.insert(WeatherEntry.TABLE_NAME, null, weatherValues);
+
+            // verify we got a row back
+            assertTrue(weatherRowId != -1);
+            Log.d(LOG_TAG, "New row id: " + weatherRowId);
+
+            // a cursor is your primary interface to query results
+            Cursor weatherCursor = db.query(
+                    WeatherEntry.TABLE_NAME,
+                    null,  // leaving columns null just return all the columns
+                    null,  // columns for the "where" clause
+                    null,  // values for the "where" clause
+                    null,  // columns to group by
+                    null,  // columns to filter by row groups
+                    null   // sort order
+            );
+
+            if (weatherCursor.moveToFirst()) {
+                // get the value in each column by finding the appropriate column index.
+
+                int dateIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_DATETEXT);
+                String date = weatherCursor.getString(dateIndex);
+
+                int descIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_SHORT_DESC);
+                String description = weatherCursor.getString(descIndex);
+
+                int locationKeyIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_LOC_KEY);
+                int locationKey = weatherCursor.getInt(locationKeyIndex);
+
+                int maxIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP);
+                int max = weatherCursor.getInt(maxIndex);
+
+                int minIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP);
+                int min = weatherCursor.getInt(minIndex);
+
+                int wIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_WEATHER_ID);
+                int weatherId = weatherCursor.getInt(wIndex);
+
+                int degreesIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_DEGREES);
+                double degrees = weatherCursor.getDouble(degreesIndex);
+
+                int humidityIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_HUMIDITY);
+                double humidity = weatherCursor.getDouble(humidityIndex);
+
+                int pressureIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_PRESSURE);
+                double pressure = weatherCursor.getDouble(pressureIndex);
+
+                int windIndex = weatherCursor.getColumnIndex(WeatherEntry.COLUMN_WIND_SPEED);
+                double wind = weatherCursor.getDouble(windIndex);
+
+                // Ok, data is returned ! Assert that it's the right data, and the database
+                // creation code is working as intended.
+                // Then take a break. We both know that wasn't easy.
+                assertEquals(locationKey, locationRowId);
+
+                assertEquals(weatherId, 321);
+                assertEquals(min, 65);
+                assertEquals(max, 75);
+
+                assertEquals(date, "20141205");
+                assertEquals(description, "Asteroids");
+
+                assertEquals(degrees, 1.1);
+                assertEquals(humidity, 1.2);
+                assertEquals(pressure, 1.3);
+                assertEquals(wind, 5.5);
+
+            }
+            else {
+                // That's weirds, it works on MY machine :)
+                fail("No values returned :(");
+            }
+
+            weatherCursor.close();
         }
         else {
             // That's weirds, it works on MY machine :)
@@ -104,6 +189,8 @@ public class TestDb extends AndroidTestCase {
 
         cursor.close();
 
+
     }
 
 }
+
