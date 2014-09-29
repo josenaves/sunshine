@@ -38,7 +38,7 @@ public class TestDb extends AndroidTestCase {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         // create a new map of values where column names are the keys
-        ContentValues values = getLocationContentValues();
+        ContentValues values = createNorthPoleLocationValues();
 
         long locationRowId;
         locationRowId = db.insert(LocationEntry.TABLE_NAME, null, values);
@@ -60,7 +60,7 @@ public class TestDb extends AndroidTestCase {
 
         if (cursor.moveToFirst()) {
 
-            ContentValues weatherValues = getWeatherContentValues(locationRowId);
+            ContentValues weatherValues = createWeatherValues(locationRowId);
 
             long weatherRowId = db.insert(WeatherEntry.TABLE_NAME, null, weatherValues);
 
@@ -80,7 +80,7 @@ public class TestDb extends AndroidTestCase {
             );
 
             if (weatherCursor.moveToFirst()) {
-                validateCursor(weatherValues, weatherCursor);
+                validateCursor(weatherCursor, weatherValues);
             }
             else {
                 // That's weirds, it works on MY machine :)
@@ -97,7 +97,7 @@ public class TestDb extends AndroidTestCase {
         cursor.close();
     }
 
-    public static void validateCursor(ContentValues expectedValues, Cursor valueCursor) {
+    public static void validateCursor(Cursor valueCursor, ContentValues expectedValues) {
 
         Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
         for (Map.Entry<String,Object> entry : valueSet) {
@@ -110,7 +110,7 @@ public class TestDb extends AndroidTestCase {
     }
 
 
-    private ContentValues getLocationContentValues() {
+    public static ContentValues createNorthPoleLocationValues() {
         // test data we're going to insert into the DB
         String testLocationSetting = "99705";
         double testLatitude = 64.7488;
@@ -124,7 +124,7 @@ public class TestDb extends AndroidTestCase {
         return values;
     }
 
-    public static ContentValues getWeatherContentValues(long locationRowId) {
+    public static ContentValues createWeatherValues(long locationRowId) {
         ContentValues weatherValues = new ContentValues();
         weatherValues.put(WeatherEntry.COLUMN_LOC_KEY, locationRowId);
         weatherValues.put(WeatherEntry.COLUMN_DATETEXT, "20141205");
