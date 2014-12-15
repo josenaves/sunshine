@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.test.AndroidTestCase;
@@ -12,7 +11,6 @@ import android.util.Log;
 
 import com.josenaves.sunshine.app.data.WeatherContract.LocationEntry;
 import com.josenaves.sunshine.app.data.WeatherContract.WeatherEntry;
-import com.josenaves.sunshine.app.data.WeatherDbHelper;
 
 import java.util.Map;
 import java.util.Set;

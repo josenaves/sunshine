@@ -61,7 +61,7 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
 
-        if (id == R.id.action_show_map) {
+        if (id == R.id.action_map) {
             openPreferredLocationInMap();
             return true;
         }
