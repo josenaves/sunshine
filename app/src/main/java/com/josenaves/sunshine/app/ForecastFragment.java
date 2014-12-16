@@ -94,6 +94,11 @@ public class ForecastFragment extends Fragment implements LoaderCallbacks<Cursor
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -106,13 +111,22 @@ public class ForecastFragment extends Fragment implements LoaderCallbacks<Cursor
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mLocation != null && !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
+            getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+        }
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
 
-        // The ArrayAdapter will take data from a source and
-        // use it to populate the ListView it's attached to.
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // The SimpleCursorAdapter will take data from the database through the
         // Loader and use it to populate the ListView it's attached to.
@@ -166,26 +180,26 @@ public class ForecastFragment extends Fragment implements LoaderCallbacks<Cursor
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, "placeholder");
-                startActivity(intent);
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                SimpleCursorAdapter adapter = (SimpleCursorAdapter) adapterView.getAdapter();
+                Cursor cursor = adapter.getCursor();
+                if (cursor != null && cursor.moveToPosition(position)) {
+                    String dateString = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
+                    String weatherDescription = cursor.getString(COL_WEATHER_DESC);
+
+                    boolean isMetric = Utility.isMetric(getActivity());
+                    String high = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
+                    String low = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
+
+                    String detailString = String.format("%s - %s - %s/%s", dateString, weatherDescription, high, low);
+
+                    Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, detailString);
+                    startActivity(intent);
+                }
             }
         });
 
         return rootView;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateWeather();
     }
 
     private void updateWeather() {
