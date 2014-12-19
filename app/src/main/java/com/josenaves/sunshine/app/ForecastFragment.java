@@ -37,7 +37,6 @@ import android.widget.TextView;
 import com.josenaves.sunshine.app.data.WeatherContract;
 import com.josenaves.sunshine.app.data.WeatherContract.LocationEntry;
 import com.josenaves.sunshine.app.data.WeatherContract.WeatherEntry;
-import com.josenaves.sunshine.app.Utility;
 
 import java.util.Date;
 

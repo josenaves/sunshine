@@ -21,6 +21,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+import com.josenaves.sunshine.app.R;
 import com.josenaves.sunshine.app.data.WeatherContract;
 
 /**
@@ -35,7 +36,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
 
     // since we use the preference change initially to populate the summary
     // field, we'll ignore that change at start of the activity
-    private boolean mBindingPreference;
+    boolean mBindingPreference;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,8 +81,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
                 FetchWeatherTask weatherTask = new FetchWeatherTask(this);
                 String location = value.toString();
                 weatherTask.execute(location);
-            }
-            else {
+            } else {
                 // notify code that weather may be impacted
                 getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
             }
